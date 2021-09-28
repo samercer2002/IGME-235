@@ -1,0 +1,48 @@
+h1{
+    font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    -webkit-text-stroke: 1px;
+    -webkit-text-stroke-color: black;
+}
+#bio{
+    color: rgb(255, 255, 255);
+    text-align: center;
+}
+body{
+    background-image: url("../Images/background.jpg");
+    background-size: 256px 256px;
+    background-color:#E4D6A7;
+}
+ul {
+    display: table;
+    margin: 0 auto;
+    color: rgb(255, 255, 255);
+  }
+.Image{
+    display: block;
+    width: 25%;
+    height: auto;
+    margin-left: auto;
+    margin-right: auto;
+    border: 1px;
+    border-radius: 200px;
+    padding: 5px;
+}
+.headings{
+    color: rgb(236, 77, 77);
+    text-align: center;
+}
+a:link{
+    color: #fa0f55;
+}
+a:visited{
+    color:rgb(156, 49, 49);
+}
+a:focus{
+    color:rgb(46, 231, 231);
+}
+a:hover{
+    color: #4E878C;
+}
+a:active{
+    color:green;
+}
