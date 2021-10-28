@@ -5,6 +5,9 @@
  header{
      background: url(../images/cats.jpg);
      height:195px;
+     margin-bottom: 1rem;
+     border-radius: 10px;
+     border:solid rgb(51, 51, 51) 2px;
  }
  
  header h1{
@@ -18,6 +21,7 @@
  #status{
      font-style: italic;
      height:32px;
+     text-align: center;
  }
  
  .result {
@@ -83,7 +87,46 @@ button:active{
 
 button:focus {outline:0;}
 
+#widgets{
+    margin: auto;
+    display: grid;
+    grid-template-areas: "term number button";
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(189, 189, 189);
+    width: 50vw;
+    border-radius : 10px;
+}
 .widgets{
     margin-top: 1em;
     margin-bottom:1em;
+    padding: 1rem;
+}
+#number{
+    grid-area: number;
+}
+#term{
+    grid-area: term;
+}
+#search{
+    grid-area: button;
+}   
+h2{
+    text-align: center;
+}
+#content{
+    text-align: center;
+    display: grid;
+    grid-template-areas:"resultText"
+    "results";
+    justify-content: center;
+}
+#content p{
+    grid-area: resultText;
+}
+.results{
+    grid-area:results;
+    display: flex;
+    flex-flow:row wrap;
+    width: 40vw;
 }

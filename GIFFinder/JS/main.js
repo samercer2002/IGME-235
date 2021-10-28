@@ -64,7 +64,7 @@
         let results = obj.data;
         console.log("resultes.length = " + results.length);
         let bigString = "<p><i>Here are " + results.length + " results for '" + displayTerm + "'</i></p>";
-
+        bigString += "<div class='results'>";
         for(let i = 0; i < results.length; i++)
         {
             let result = results[i];
@@ -80,6 +80,7 @@
 
             bigString += line;
         }
+        bigString += "</div>"
         document.querySelector("#content").innerHTML = bigString;
 
         document.querySelector("#status").innerHTML = "<b>Success!</b>";
