@@ -63,27 +63,28 @@
 
         let results = obj.data;
         console.log("resultes.length = " + results.length);
-        let bigString = "<p><i>Here are " + results.length + " results for '" + displayTerm + "'</i></p>";
-        bigString += "<div class='results'>";
+        let bigString = "";
+
         for(let i = 0; i < results.length; i++)
         {
             let result = results[i];
 
-            let smallURL = result.images.fixed_width_small.url;
+            let smallURL = result.images.fixed_width_downsampled.url;
             if(!smallURL) smallURL = "images/no-image-found.png";
 
             let url = result.url;
 
+            let rating = (result.rating ? result.rating : "NA").toUpperCase();
+
             let line = `<div class = 'result'><img src='${smallURL}' title = '${result.id}' />`;
             line += `<span><a target='blank' href='${url}'>View on Giphy</a></span>`;
-            line += `<span><p>Rating: ${result.rating.toUpperCase()}</p></div>`;
+            line += `<span><p>Rating: ${rating}</p></div>`;
 
             bigString += line;
         }
-        bigString += "</div>"
         document.querySelector("#content").innerHTML = bigString;
 
-        document.querySelector("#status").innerHTML = "<b>Success!</b>";
+        document.querySelector("#status").innerHTML = "<b>Success!</b><p><i>Here are " + results.length + " results for '" + displayTerm + "'</i></p>";
     }
     function dataError(e)
     {
