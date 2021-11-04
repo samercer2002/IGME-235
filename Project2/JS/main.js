@@ -70,6 +70,7 @@ function dataLoaded(e)
                     smallURL = result.assets.image;
                     if(!smallURL) smallURL = "images/no-image-found.png";
                     line = `<div class = 'result'><img src='${smallURL}' title = '${result.id}' />`;
+                    line+= `</div>`;
                     break;
                 case "armor":
                     smallURL = result.assets.imageMale;
@@ -78,6 +79,7 @@ function dataLoaded(e)
                     smallURL = result.assets.imageFemale;
                     if(!smallURL) smallURL = "images/no-image-found.png";
                     line += `<img src='${smallURL}' title = '${result.id}' />`;
+                    line+= `</div>`;
                     break;
                 case "charms":
                     line = "";

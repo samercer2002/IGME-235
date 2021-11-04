@@ -1,0 +1,22 @@
+body{
+    display: grid;
+    grid-template-areas: 
+    "Title Title"
+    "Search Result";
+    grid-template-columns: 1fr 3fr;
+}
+
+header{
+    grid-area:Title;
+}
+
+#searchOptions{
+    grid-area: Search;
+}
+#content{
+    grid-area: results;
+}
+.results{
+    display: flex;
+    flex-flow: row wrap;
+}
