@@ -55,7 +55,8 @@ function dataLoaded(e)
 
         let results = obj;
         console.log("results.length = " + results.length);
-        let bigString = "<p><i>Here are " + results.length + " results for '" + displayTerm + "'</i></p>";
+        let bigString = "<h2>Results</h2>";
+        bigString += "<p><i>Here are " + results.length + " results for '" + displayTerm + "'</i></p>";
         bigString += "<div class='results'>";
         let limit = document.querySelector("#limit").value;
         let term = document.querySelector("#type").value;
@@ -70,23 +71,22 @@ function dataLoaded(e)
                     smallURL = result.assets.image;
                     if(!smallURL) smallURL = "images/no-image-found.png";
                     line = `<div class = 'result'><img src='${smallURL}' title = '${result.id}' />`;
+                    line += `</div>`;
                     break;
                 case "armor":
                     smallURL = result.assets.imageMale;
                     if(!smallURL) smallURL = "images/no-image-found.png";
                     line = `<div class = 'result'><img src='${smallURL}' title = '${result.id}' />`;
-                    smallURL = result.assets.imageFemale;
+                    line += `<div class = 'data'>Name: ${result.name}</div>`
+                    /*smallURL = result.assets.imageFemale;
                     if(!smallURL) smallURL = "images/no-image-found.png";
-                    line += `<img src='${smallURL}' title = '${result.id}' />`;
+                    line += `<img src='${smallURL}' title = '${result.id}' />`;*/
+                    line += `</div>`;
                     break;
                 case "charms":
                     line = "";
                     break;
             }
-
-            //let url = result.url;
-            //line += `<span><a target='blank' href='${url}'>View on Giphy</a></span>`;
-            //line += `<span><p>Rating: ${result.rating.toUpperCase()}</p></div>`;
 
             bigString += line;
         }

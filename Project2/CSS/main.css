@@ -1,22 +1,69 @@
+*{
+    box-sizing: border-box;
+}
 body{
     display: grid;
     grid-template-areas: 
     "Title Title"
     "Search Result";
     grid-template-columns: 1fr 3fr;
+    grid-template-rows: auto 4fr;
+    margin: 0;
 }
 
 header{
     grid-area:Title;
+    width: 100%;
+    height: 20vh;
+    border: solid black 4px;
 }
 
 #searchOptions{
     grid-area: Search;
+    border: solid black 4px;
+    margin: 0;
+    display: grid;
+    grid-template-areas: 
+    "Type"
+    "Number"
+    "Custom"
+    "Button";
 }
 #content{
-    grid-area: results;
+    margin: 0;
+    grid-area: Result;
+    text-align: center;
+    border: solid black 4px;
 }
 .results{
     display: flex;
     flex-flow: row wrap;
+    justify-content: center;
+    margin: 2rem;
+    border: solid black 4px;
+}
+.result{
+    position: relative;
+    text-align: left;
+    border: solid black 4px;
+    width: 16vw;
+    height: 35vh;
+    margin: 0.5rem;
+}
+.result img{
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    border: solid black 2px;
+    width: 50%;
+    height: auto;
+}
+#data{
+    grid-area:Data;
+}
+#number{
+    grid-area: Number;
+}
+#searchButton{
+    grid-area:Button;
 }

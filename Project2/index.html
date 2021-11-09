@@ -5,9 +5,14 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="JS/main.js"></script>
+    <link rel="stylesheet" href="CSS/main.css">
     <title>Document</title>
 </head>
 <body>
+    <header>
+        <h1>Here is my Title</h1>
+    </header>
+    <div id="searchOptions">
     <div class="widgets">
         <div id="data">
         Max # results -> 
@@ -33,11 +38,13 @@
 
     <div class="widgets">
         <div id="searchButton">
-        <button type="button" id="search" class="green">Find some Data!<br />:-)</button>
+            <button type="button" id="search" class="green">Find some Data!<br />:-)</button>
+            <div id="status">Ready to Search!</div> 
+        </div>
     </div>
-    <div id="status">Ready to Search!</div>
-    <h2>Results</h2>
+</div>
 <div id="content">
+    <h2>Results</h2>
 	<p>No data yet!</p>
 </div>
 </body>
