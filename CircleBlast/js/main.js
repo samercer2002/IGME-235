@@ -14,8 +14,8 @@ const sceneHeight = app.view.height;
 // pre-load the images
 app.loader.
     add([
-        "images/spaceship.png",
-        "images/explosions.png"
+        "../images/Spaceship.png",
+        "../images/explosions.png"
     ]);
 app.loader.onProgress.add(e => { console.log(`progress=${e.progress}`) });
 app.loader.onComplete.add(setup);
@@ -35,12 +35,13 @@ let bullets = [];
 let aliens = [];
 let explosions = [];
 let explosionTextures;
-let score = 0;
+let score;
 let life = 100;
 let levelNum = 1;
 let paused = true;
 
 function setup() {
+    score = 0;
 	stage = app.stage;
 	// #1 - Create the `start` scene
 	startScene = new PIXI.Container();
@@ -343,6 +344,7 @@ function loadLevel(){
 function end()
 {
     paused = true;
+    gameOverScoreLabel.text = `Your final score: ${score}`;
     circles.forEach(c=>gameScene.removeChild(c));
     circles = [];
 
