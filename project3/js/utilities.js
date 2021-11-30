@@ -20,7 +20,23 @@
   function rectsIntersect(a,b){
       var ab = a.getBounds();
       var bb = b.getBounds();
-      return ab.x + ab.width > bb.x && ab.x < bb.x + bb.width && ab.y + ab.height > bb.y && ab.y < bb.y + bb.height;
+      let xIntersection = xIntersect(a,b);
+      let yIntersection = yIntersect(a,b);
+      return xIntersection && yIntersection;
+  }
+
+  function xIntersect(a,b)
+  {
+    var ab = a.getBounds();
+    var bb = b.getBounds();
+      return ab.x + ab.width > bb.x && ab.x < bb.x + bb.width;
+  }
+
+  function yIntersect(a,b)
+  {
+    var ab = a.getBounds();
+    var bb = b.getBounds();
+    return ab.y + ab.height > bb.y && ab.y < bb.y + bb.height;
   }
   
   // these 2 helpers are used by classes.js
@@ -64,4 +80,10 @@
     {
         return {x:0, y:-1}
     }
+  }
+
+  function LengthSquared(distance)
+  {
+      let distSquared = Math.pow(distance.x,2) + Math.pow(distance.y,2);
+      return distSquared;
   }

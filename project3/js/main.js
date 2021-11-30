@@ -191,7 +191,7 @@ function startGame()
     gameOverScene.visible = false;
     gameScene.visible = true;
     score = 0;
-    life = 100;
+    life = 3;
     increaseScoreBy(0);
     decreaseLifeBy(0);
     /*player.x = 300;
@@ -209,7 +209,7 @@ function decreaseLifeBy(value)
 {
     life -= value;
     life = parseInt(life);
-    lifeLabel.text = `Life      ${life}%`;
+    lifeLabel.text = `Lives: ${life}`;
 }
 
 function createEnemies(numCircles)
@@ -257,6 +257,9 @@ function gameLoop(){
         player.x -= 100 * dt;
     }
 
+    player.x = clamp(player.x,0 + player.width / 2, sceneWidth - player.width / 2);
+    player.y = clamp(player.y,0 + player.height / 2, sceneHeight - player.height / 2);
+
     // Left Arrow
     if(keys["37"])
     {
@@ -285,16 +288,77 @@ function gameLoop(){
     for(let e of enemies)
     {
         e.move(dt);
+        for(let en of enemies)
+        {
+            /*if(rectsIntersect(e,en) && e != en)
+            {
+                // Only works sometimes
+                en.x = clamp(en.x,e.x+e.width);
+                en.y = clamp(en.y,e.y+e.height);
+            }*/
+        }
+
+        for(let b of bullets)
+        {
+            if(rectsIntersect(e,b) && e.isAlive && b.isAlive)
+            {
+                gameScene.removeChild(e);
+                e.isAlive = false;
+                gameScene.removeChild(b);
+                b.isAlive = false;
+                increaseScoreBy(1);
+            }
+
+            if(b.x > sceneWidth || b.x < 0 || b.y > sceneHeight || b.y < 0)
+            {
+                b.isAlive = false;
+            }
+        }
+
+        if(e.isAlive && rectsIntersect(e, player))
+        {
+            Reset()
+            loadLevel();
+            decreaseLifeBy(1);
+        }
+    }
+
+    enemies = enemies.filter(e => e.isAlive);
+    bullets = bullets.filter(b=>b.isAlive);
+
+    if(life <= 0)
+    {
+        end();
+        return;
     }
 }
 
 function fireBullet(x = 0, y = 0){
     if(paused) return;
-    if(elapsedTime >= 1.5 || bullets.length == 0)
+    if(elapsedTime >= 0.5 || bullets.length == 0)
     {
         let b = new Bullet(0xFFFFFF,player.x,player.y,x, y);
         bullets.push(b);
         gameScene.addChild(b);
         elapsedTime = 0;
     }
+}
+
+function Reset()
+{
+    enemies.forEach(c=>gameScene.removeChild(c));
+    enemies = [];
+
+    bullets.forEach(b=>gameScene.removeChild(b));
+    bullets = [];
+}
+
+function end()
+{
+    paused = true;
+    gameOverScoreLabel.text = `Your final score: ${score}`;
+    Reset();
+
+    gameOverScene.visible = true;
+    gameScene.visible = false;
 }
