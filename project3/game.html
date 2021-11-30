@@ -4,9 +4,32 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/main.css"> 
     <title>Survive the Hoard</title>
 </head>
 <body>
+    <h1>Survive the Hoard</h1>
+    <div id="instructions">
+        <h2>Insturctions:</h2>
+        <ul>
+            <li>Movement: WASD</li>
+            <li>Shooting: Arrow Keys</li>
+            <li>Use Item: Space</li>
+        </ul>
+        Note: The specific arrow key correlates to a direction to fire the bullet
+    </div>
+    <div id="goals">
+        <h2>Goals:</h2>
+        The player should try to survive as long as possible given the 3 lives the player has.
+        There is an initial set of 5 enemies and after that, sets of 3 enemies will spawn every 4.5 seconds.
+        <br><br>
+        Occasionally, enemies will drop temporary power-ups that help the player survive longer. If the player has an item already in their inventory, 
+        passing over another item will not pick it up. Instead, it will use that item. (items are not currently added yet).
+
+    </div>
+    <footer>
+        Copyright 2021 By: Silas Mercer <a href="documentation.html">Documentation</a>
+    </footer>
     <script src="https://pixijs.download/release/pixi.min.js"></script>
     <script src="js/utilities.js"></script>
     <script src="js/classes.js"></script>

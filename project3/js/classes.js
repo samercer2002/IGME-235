@@ -28,10 +28,6 @@ class Enemy extends PIXI.Sprite{
         this.x += this.fwd.x * this.speed * dt;
         this.y += this.fwd.y * this.speed * dt;
     }
-    seperate(dt=1/60)
-    {
-        
-    }
 }
 
 class Bullet extends PIXI.Graphics{

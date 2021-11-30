@@ -1,0 +1,36 @@
+body{
+    display: grid;
+    grid-template-areas:
+    "Title Title Title"
+    "Instructions Game Goals"
+    "Footer Footer Footer";
+    grid-template-columns:  1fr auto 1fr;
+    grid-template-rows: 1fr auto 1fr;
+    background-color: rgb(56, 233, 97);
+}
+
+#instructions
+{
+    grid-area: Instructions;
+    padding: 1rem;
+}
+
+h1{
+    grid-area: Title;
+    text-align: center;
+}
+canvas{
+    grid-area: Game;
+    height: 80vh;
+}
+
+#goals
+{
+    grid-area: Goals;
+    padding: 1rem;
+}
+footer{
+    grid-area: Footer;
+    text-align: center;
+    padding: 1rem;
+}

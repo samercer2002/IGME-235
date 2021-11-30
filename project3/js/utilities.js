@@ -60,6 +60,11 @@
       return Math.random() * (max - min) + min;
   }
 
+  function getRandomInt(min,max)
+  {
+      return Math.round(Math.random() * (max-min) + min);
+  }
+
   function getPlayerDirection(x, y, player)
   {
     let xComp = player.x - x;
@@ -80,10 +85,4 @@
     {
         return {x:0, y:-1}
     }
-  }
-
-  function LengthSquared(distance)
-  {
-      let distSquared = Math.pow(distance.x,2) + Math.pow(distance.y,2);
-      return distSquared;
   }

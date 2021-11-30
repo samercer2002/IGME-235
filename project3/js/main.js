@@ -49,7 +49,8 @@ let score;
 let scoreLabel,lifeLabel,gameOverScoreLabel;
 let life = 3;
 let paused = true;
-let elapsedTime = 0;
+let elapsedBulletTime = 0;
+let elapsedEnemyTime = 0;
 
 function setup(){
     score = 0;
@@ -83,10 +84,10 @@ function createLabelsAndButtons()
         });
 
 
-    let startLabel1 = new PIXI.Text("Name!");
+    let startLabel1 = new PIXI.Text("Survive the Hoard!");
     startLabel1.style = new PIXI.TextStyle({
         fill: 0xFFFFFF,
-        fontSize: 96,
+        fontSize: 54,
         fontFamily: "Verdana",
         stroke: 0xFF0000,
         strokeThickness: 6
@@ -108,7 +109,7 @@ function createLabelsAndButtons()
     startLabel2.y = 300;
     startScene.addChild(startLabel2);
 
-    let startButton = new PIXI.Text("Button!");
+    let startButton = new PIXI.Text("Play the Game!");
     startButton.style = buttonStyle;
     startButton.x = 80;
     startButton.y = sceneHeight - 100;
@@ -194,8 +195,8 @@ function startGame()
     life = 3;
     increaseScoreBy(0);
     decreaseLifeBy(0);
-    /*player.x = 300;
-    player.y = 550;*/
+    player.x = 300;
+    player.y = 300;
     loadLevel();
 }
 
@@ -212,13 +213,14 @@ function decreaseLifeBy(value)
     lifeLabel.text = `Lives: ${life}`;
 }
 
-function createEnemies(numCircles)
+function createEnemies(numEnemies)
 {
-    for(let i=0; i<numCircles;i++)
+    let spawnPos = getSpawnInfo();
+    for(let i=0; i<numEnemies;i++)
     {
         let e = new Enemy(0,0,player);
-        e.x = Math.random() * (sceneWidth - 50) + 25;
-        e.y = Math.random() * (sceneHeight - 400) + 25;
+        e.x = spawnPos.x;
+        e.y = spawnPos.y;
         enemies.push(e);
         gameScene.addChild(e);
     }
@@ -233,8 +235,9 @@ function gameLoop(){
     if(paused) return;
 
     let dt = 1/app.ticker.FPS;
-    elapsedTime += dt;
     if (dt > 1/12) dt=1/12;
+    elapsedBulletTime += dt;
+    elapsedEnemyTime += dt;
 
     // W
     if(keys["87"])
@@ -288,14 +291,26 @@ function gameLoop(){
     for(let e of enemies)
     {
         e.move(dt);
+        checkBounds(e);
         for(let en of enemies)
         {
-            /*if(rectsIntersect(e,en) && e != en)
+            if(rectsIntersect(e,en) && e != en)
             {
-                // Only works sometimes
-                en.x = clamp(en.x,e.x+e.width);
-                en.y = clamp(en.y,e.y+e.height);
-            }*/
+                if(e.x > en.x)
+                {
+                    e.x = clamp(e.x,en.x+en.width);
+                }
+                else{
+                    en.x = clamp(en.x,e.x+e.width);
+                }
+                if(e.y > en.y)
+                {
+                    e.y = clamp(e.y,en.y+en.height);
+                }
+                else{
+                    en.y = clamp(en.y,e.y+e.height);
+                }
+            }
         }
 
         for(let b of bullets)
@@ -312,6 +327,7 @@ function gameLoop(){
             if(b.x > sceneWidth || b.x < 0 || b.y > sceneHeight || b.y < 0)
             {
                 b.isAlive = false;
+                gameScene.removeChild(b);
             }
         }
 
@@ -326,6 +342,12 @@ function gameLoop(){
     enemies = enemies.filter(e => e.isAlive);
     bullets = bullets.filter(b=>b.isAlive);
 
+    if(enemies.length == 0 || elapsedEnemyTime > 4.5)
+    {
+        createEnemies(3);
+        elapsedEnemyTime = 0;
+    }
+
     if(life <= 0)
     {
         end();
@@ -335,12 +357,12 @@ function gameLoop(){
 
 function fireBullet(x = 0, y = 0){
     if(paused) return;
-    if(elapsedTime >= 0.5 || bullets.length == 0)
+    if(elapsedBulletTime >= 0.5)
     {
         let b = new Bullet(0xFFFFFF,player.x,player.y,x, y);
         bullets.push(b);
         gameScene.addChild(b);
-        elapsedTime = 0;
+        elapsedBulletTime = 0;
     }
 }
 
@@ -361,4 +383,44 @@ function end()
 
     gameOverScene.visible = true;
     gameScene.visible = false;
+}
+
+function getSpawnInfo()
+{
+    let spawnQuad = getRandomInt(1,4);
+    switch(spawnQuad)
+    {
+        case 1:
+            return {x:0, y:(sceneHeight / 2)};
+            break;
+        case 2:
+            return {x:sceneWidth / 2, y:0};
+            break;
+        case 3:
+            return {x:sceneWidth, y:(sceneHeight / 2)};
+            break;
+        case 4:
+            return {x:sceneWidth / 2, y:sceneHeight};
+            break;
+    }
+}
+
+function checkBounds(enemy)
+{
+    if(enemy.x >= sceneWidth)
+    {
+        enemy.x = sceneWidth - enemy.width;
+    }
+    else if(enemy.x <= 0)
+    {
+        enemy.x = enemy.width;
+    }
+    if(enemy.y >= sceneHeight)
+    {
+        enemy.y = sceneHeight - enemy.height;
+    }
+    else if(enemy.y <= 0)
+    {
+        enemy.y = enemy.height;
+    }
 }
