@@ -6,6 +6,13 @@ class Player extends PIXI.Sprite{
         this.scale.set(0.02);
         this.x=x;
         this.y=y;
+        this.playerSpeed = 100;
+        this.playerFireRate = 0.7;
+    }
+    ResetPlayerStats()
+    {
+        this.playerSpeed = 100;
+        this.playerFireRate = 0.7;
     }
 }
 
@@ -52,3 +59,25 @@ class Bullet extends PIXI.Graphics{
         this.y += this.fwd.y * this.speed * dt;
     }
 }
+
+class Item extends PIXI.Sprite{
+    constructor(x=0,y=0)
+    {
+        super(app.loader.resources["../images/meatball_man.jpg"].texture);
+        this.anchor.set(0.5,0.5);
+        this.scale.set(0.08);
+        this.x = x;
+        this.y = y;
+        this.isAlive = true;
+        this.lifeSpan = 10.0;
+    }
+    useItem(player){
+        // Item would be used up and do a special effect
+        console.log("Used the Item!");
+        this.isAlive = false;
+        player.playerSpeed = 150;
+        return player;
+    }
+}
+
+// Add more items later

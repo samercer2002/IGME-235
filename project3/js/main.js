@@ -31,7 +31,8 @@ const sceneHeight = app.view.height;
 app.loader.
     add([
         "../images/checkerpattern.jpg",
-        "../images/latest.png"
+        "../images/latest.png",
+        "../images/meatball_man.jpg"
     ]);
 app.loader.onProgress.add(e => { console.log(`progress=${e.progress}`) });
 app.loader.onComplete.add(setup);
@@ -51,6 +52,11 @@ let life = 3;
 let paused = true;
 let elapsedBulletTime = 0;
 let elapsedEnemyTime = 0;
+let elapsedItemUseTime = 0;
+let items = [];
+let inventory;
+let inventoryItems = [];
+let startTimer = false;
 
 function setup(){
     score = 0;
@@ -72,7 +78,22 @@ function setup(){
     player = new Player(50,50);
     gameScene.addChild(player);
 
+    setupInventory();
+    
+
     app.ticker.add(gameLoop);
+}
+
+function setupInventory(){
+    inventory = new PIXI.Container();
+    let mask = new PIXI.Graphics();
+    mask.beginFill(0xffffff);
+    mask.drawRect(sceneWidth-100,0,sceneWidth,100);
+    mask.endFill();
+
+    inventory.mask = mask;
+    inventory.addChild(mask);
+    gameScene.addChild(inventory);
 }
 
 function createLabelsAndButtons()
@@ -239,25 +260,38 @@ function gameLoop(){
     elapsedBulletTime += dt;
     elapsedEnemyTime += dt;
 
+    if(items.length > 0)
+    {
+        for(let item of items)
+        {
+            item.lifeSpan -= dt;
+            if(item.lifeSpan <= 0)
+            {
+                item.isAlive = false;
+                gameScene.removeChild(item);
+                items = items.filter(item => item.isAlive);
+            }
+        }
+    }
     // W
     if(keys["87"])
     {
-        player.y -= 100 * dt;
+        player.y -= player.playerSpeed * dt;
     }
     // S
     if(keys["83"])
     {
-        player.y += 100 * dt;
+        player.y += player.playerSpeed * dt;
     }
     // D
     if(keys["68"])
     {
-        player.x += 100 * dt;
+        player.x += player.playerSpeed * dt;
     }
     // A
     if(keys["65"])
     {
-        player.x -= 100 * dt;
+        player.x -= player.playerSpeed * dt;
     }
 
     player.x = clamp(player.x,0 + player.width / 2, sceneWidth - player.width / 2);
@@ -282,6 +316,34 @@ function gameLoop(){
     if(keys["40"])
     {
         fireBullet(0,1);
+    }
+
+    if(keys["32"] && inventoryItems.length > 0)
+    {
+        player = inventoryItems[0].useItem(player);
+        inventory.removeChild(inventoryItems[0]);
+        inventoryItems = [];
+        if(startTimer && elapsedItemUseTime > 0)
+        {
+            elapsedItemUseTime = 0;
+        }
+        else
+        {
+            startTimer = true;
+        }
+        
+    }
+
+    if(startTimer)
+    {
+        elapsedItemUseTime += dt;
+    }
+    if(elapsedItemUseTime >= 12)
+    {
+        console.log("item ran out");
+        startTimer = false;
+        elapsedItemUseTime = 0;
+        player.ResetPlayerStats();
     }
 
     for (let b of bullets){
@@ -322,6 +384,7 @@ function gameLoop(){
                 gameScene.removeChild(b);
                 b.isAlive = false;
                 increaseScoreBy(1);
+                tryForItem(e);
             }
 
             if(b.x > sceneWidth || b.x < 0 || b.y > sceneHeight || b.y < 0)
@@ -339,8 +402,33 @@ function gameLoop(){
         }
     }
 
+    for(let item of items)
+    {
+        if(item.isAlive && rectsIntersect(item, player) && inventoryItems.length == 0)
+        {
+            console.log("picked up item");
+            inventoryItems.push(item);
+            item.isAlive = false;
+            gameScene.removeChild(item);
+            inventoryItems[0].x = sceneWidth-50;
+            inventoryItems[0].y = 50;
+            inventoryItems[0].scale.set(0.2);
+            inventory.addChild(inventoryItems[0]);
+        }
+        else if (item.isAlive && rectsIntersect(item, player) && inventoryItems.length > 0){
+            player = item.useItem(player);
+            gameScene.removeChild(item);
+
+            if(startTimer && elapsedItemUseTime > 0)
+            {
+                elapsedItemUseTime = 0;
+            }
+        }
+    }
+
     enemies = enemies.filter(e => e.isAlive);
     bullets = bullets.filter(b=>b.isAlive);
+    items = items.filter(item => item.isAlive);
 
     if(enemies.length == 0 || elapsedEnemyTime > 4.5)
     {
@@ -357,7 +445,7 @@ function gameLoop(){
 
 function fireBullet(x = 0, y = 0){
     if(paused) return;
-    if(elapsedBulletTime >= 0.5)
+    if(elapsedBulletTime >= player.playerFireRate)
     {
         let b = new Bullet(0xFFFFFF,player.x,player.y,x, y);
         bullets.push(b);
@@ -373,6 +461,10 @@ function Reset()
 
     bullets.forEach(b=>gameScene.removeChild(b));
     bullets = [];
+
+    items.forEach(i=>gameScene.removeChild(i));
+    items = [];
+    player.ResetPlayerStats();
 }
 
 function end()
@@ -422,5 +514,16 @@ function checkBounds(enemy)
     else if(enemy.y <= 0)
     {
         enemy.y = enemy.height;
+    }
+}
+
+function tryForItem(enemy)
+{
+    if(Math.random() < 0.3)
+    {
+        // To be changed once unique items are added
+        let item = new Item(enemy.x,enemy.y);
+        items.push(item);
+        gameScene.addChild(item);
     }
 }
