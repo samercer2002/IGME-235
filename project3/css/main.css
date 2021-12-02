@@ -13,6 +13,8 @@ body{
 {
     grid-area: Instructions;
     padding: 1rem;
+    margin-left: 1rem;
+    margin-right:1rem;
 }
 
 h1{
@@ -28,6 +30,8 @@ canvas{
 {
     grid-area: Goals;
     padding: 1rem;
+    margin-left: 1rem;
+    margin-right:1rem;
 }
 footer{
     grid-area: Footer;

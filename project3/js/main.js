@@ -34,7 +34,8 @@ app.loader.
     add([
         "../images/checkerpattern.jpg",
         "../images/latest.png",
-        "../images/meatball_man.jpg"
+        "../images/meatball_man.jpg",
+        "../images/MiniGunPack1.png"
     ]);
 app.loader.onProgress.add(e => { console.log(`progress=${e.progress}`) });
 app.loader.onComplete.add(setup);
@@ -54,13 +55,14 @@ let life = 3;
 let paused = true;
 let elapsedBulletTime = 0;
 let elapsedEnemyTime = 0;
-let elapsedItemUseTime = 0;
 let totalElapsedTime = 0;
 let items = [];
 let inventory;
 let inventoryItems = [];
 let startTimer = false;
 let wheelFireDirections = [];
+let activeItems = [];
+let shootSound, hitSound;
 
 function setup(){
     score = 0;
@@ -83,13 +85,22 @@ function setup(){
     gameScene.addChild(player);
 
     wheelFireDirections.push({x:-1,y:0});
-    wheelFireDirections.push({x:-0.7071,y:0});
+    wheelFireDirections.push({x:-0.7071,y:-0.7071});
     wheelFireDirections.push({x:1,y:0});
-    wheelFireDirections.push({x:0.7071,y:0});
+    wheelFireDirections.push({x:-0.7071,y:0.7071});
     wheelFireDirections.push({x:0,y:-1});
-    wheelFireDirections.push({x:0,y:-0.7071});
+    wheelFireDirections.push({x:0.7071,y:-0.7071});
     wheelFireDirections.push({x:0,y:1});
-    wheelFireDirections.push({x:0,y:0.7071});
+    wheelFireDirections.push({x:0.7071,y:0.7071});
+
+    shootSound = new Howl({
+	    src: ['sounds/shoot.wav'],
+        volume: 0.5
+    });
+
+    hitSound = new Howl({
+	    src: ['sounds/hit.wav'],
+    });
 
     setupInventory();
     
@@ -314,6 +325,16 @@ function gameLoop(){
     elapsedEnemyTime += dt;
     totalElapsedTime += dt;
 
+    for(let item of activeItems)
+    {
+        item.activeTime -= dt;
+        if(item.activeTime <= 0)
+        {
+            item.isActive = false;
+            item.deactivateItem(player);
+        }
+    }
+
     if(items.length > 0)
     {
         for(let item of items)
@@ -385,29 +406,9 @@ function gameLoop(){
     if(keys["32"] && inventoryItems.length > 0)
     {
         player = inventoryItems[0].useItem(player);
+        checkActiveItems(inventoryItems[0]);
         inventory.removeChild(inventoryItems[0]);
         inventoryItems = [];
-        if(startTimer && elapsedItemUseTime > 0)
-        {
-            elapsedItemUseTime = 0;
-        }
-        else
-        {
-            startTimer = true;
-        }
-        
-    }
-
-    if(startTimer)
-    {
-        elapsedItemUseTime += dt;
-    }
-    if(elapsedItemUseTime >= 12)
-    {
-        console.log("item ran out");
-        startTimer = false;
-        elapsedItemUseTime = 0;
-        player.ResetPlayerStats();
     }
 
     for (let b of bullets){
@@ -449,6 +450,7 @@ function gameLoop(){
                 b.isAlive = false;
                 increaseScoreBy(1);
                 tryForItem(e);
+                hitSound.play();
             }
             else if(rectsIntersect(e,b) && e.isAlive && b.isAlive && player.hasPiercing)
             {
@@ -456,6 +458,7 @@ function gameLoop(){
                 e.isAlive = false;
                 increaseScoreBy(1);
                 tryForItem(e);
+                hitSound.play();
             }
 
             if(b.x > sceneWidth || b.x < 0 || b.y > sceneHeight || b.y < 0)
@@ -478,7 +481,7 @@ function gameLoop(){
     {
         if(item.isAlive && rectsIntersect(item, player) && inventoryItems.length == 0)
         {
-            console.log("picked up item");
+            //console.log("picked up item");
             inventoryItems.push(item);
             item.isAlive = false;
             gameScene.removeChild(item);
@@ -489,6 +492,7 @@ function gameLoop(){
         }
         else if (item.isAlive && rectsIntersect(item, player) && inventoryItems.length > 0){
             player = item.useItem(player);
+            checkActiveItems(item);
             gameScene.removeChild(item);
 
             if(startTimer && elapsedItemUseTime > 0)
@@ -501,6 +505,7 @@ function gameLoop(){
     enemies = enemies.filter(e => e.isAlive);
     bullets = bullets.filter(b=>b.isAlive);
     items = items.filter(item => item.isAlive);
+    activeItems = activeItems.filter(item => (item.activeTime >= 0))
 
     if(enemies.length == 0 || elapsedEnemyTime > 4.5)
     {
@@ -515,7 +520,7 @@ function gameLoop(){
     }
 }
 
-function fireBullet(x = 0, y = 0){
+function fireBullet(x = 0.0, y = 0.0){
     if(paused) return;
     if(elapsedBulletTime >= player.playerFireRate && !player.wheelFire)
     {
@@ -523,6 +528,7 @@ function fireBullet(x = 0, y = 0){
         bullets.push(b);
         gameScene.addChild(b);
         elapsedBulletTime = 0;
+        shootSound.play();
     }
     else if(player.wheelFire)
     {
@@ -535,6 +541,7 @@ function fireBullet(x = 0, y = 0){
                 gameScene.addChild(b);
                 elapsedBulletTime = 0;
             }
+            shootSound.play();
         }
     }
 }
@@ -549,6 +556,10 @@ function Reset()
 
     items.forEach(i=>gameScene.removeChild(i));
     items = [];
+
+    activeItems.forEach(i=>gameScene.removeChild(i));
+    activeItems = [];
+
     player.ResetPlayerStats();
 }
 
@@ -630,4 +641,33 @@ function pickItem(x,y)
     else{
         return new Piercing(x,y);
     }
+}
+
+function checkActiveItems(item)
+{
+    let isInActive = false;
+    if(activeItems.length == 0)
+    {
+        activeItems.push(item);
+    }
+    for(let actItem of activeItems)
+    {
+        if(actItem != typeof item)
+        {            
+            isInActive = true;
+        }
+        else{
+            isInActive = false;
+            actItem.activeTime = 12;
+            return;
+        }
+    }
+
+    if(isInActive)
+    {
+        activeItems.push(item);
+    }
+    else{
+    }
+    
 }

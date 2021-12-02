@@ -64,7 +64,8 @@ class Bullet extends PIXI.Graphics{
     }
 }
 
-class Item extends PIXI.Sprite{
+// Item class concept
+/*class Item extends PIXI.Sprite{
     constructor(x=0,y=0)
     {
         super(app.loader.resources["../images/meatball_man.jpg"].texture);
@@ -75,77 +76,126 @@ class Item extends PIXI.Sprite{
         this.isAlive = true;
         this.lifeSpan = 10.0;
         // Fix use time for multiple items
+        this.activeTime = 12.0;
+        this.isActive = false;
     }
     useItem(player){
         // Item would be used up and do a special effect        
     }
-}
+}*/
 
-// Add more items later
+// Unique items
 
-class FireRateItem extends Item{
+class FireRateItem extends PIXI.Sprite{
     constructor(x=0,y=0)
     {
-        super();
+        super(app.loader.resources["../images/MiniGunPack1.png"].texture);
+        this.anchor.set(0.5,0.5);
+        this.scale.set(1);
         this.x = x;
         this.y = y;
-        this.tint = 0x00FF00;
+        this.isAlive = true;
+        this.lifeSpan = 10.0;
+        this.activeTime = 12.0;
+        this.isActive = false;
     }
     
     useItem(player)
     {
         this.isAlive = false;
+        this.isActive = true;
         player.playerFireRate = 0.35;
         return player;
     }
+    deactivateItem(player)
+    {
+        //console.log("deactivate");
+        player.playerFireRate = 0.7;
+    }
 }
 
-class SpeedItem extends Item{
+class SpeedItem extends PIXI.Sprite{
     constructor(x=0,y=0)
     {
-        super();
+        super(app.loader.resources["../images/meatball_man.jpg"].texture);
+        this.anchor.set(0.5,0.5);
+        this.scale.set(0.08);
         this.x = x;
         this.y = y;
+        this.isAlive = true;
+        this.lifeSpan = 10.0;
+        this.activeTime = 12.0;
+        this.isActive = false;
     }
 
     useItem(player)
     {
         this.isAlive = false;
+        this.isActive = true;
         player.playerSpeed = 150;
         return player;
     }
+    deactivateItem(player)
+    {
+        //console.log("deactivate");
+        player.playerSpeed = 100;
+    }
 }
 
-class WheelFire extends Item{
+class WheelFire extends PIXI.Sprite{
     constructor(x=0,y=0)
     {
-        super();
+        super(app.loader.resources["../images/meatball_man.jpg"].texture);
+        this.anchor.set(0.5,0.5);
+        this.scale.set(0.08);
         this.x = x;
         this.y = y;
+        this.isAlive = true;
+        this.lifeSpan = 10.0;
+        this.activeTime = 12.0;
+        this.isActive = false;
         this.tint = 0x0000FF;
     }
 
     useItem(player)
     {
         this.isAlive = false;
+        this.isActive = true;
         player.wheelFire = true;
         return player;
     }
+    deactivateItem(player)
+    {
+        //console.log("deactivate");
+        player.wheelFire = false;
+    }
 
 }
-class Piercing extends Item{
+class Piercing extends PIXI.Sprite{
     constructor(x=0,y=0)
     {
-        super();
+        super(app.loader.resources["../images/meatball_man.jpg"].texture);
+        this.anchor.set(0.5,0.5);
+        this.scale.set(0.08);
         this.x = x;
         this.y = y;
+        this.isAlive = true;
+        this.lifeSpan = 10.0;
+        this.activeTime = 12.0;
+        this.isActive = false;
         this.tint = 0x00FFFF;
     }
 
     useItem(player)
     {
         this.isAlive = false;
+        this.isActive = true;
         player.hasPiercing = true;
         return player;
+    }
+    deactivateItem(player)
+    {
+        //console.log("deactivate");
+        player.hasPiercing = false;
     }
 }
