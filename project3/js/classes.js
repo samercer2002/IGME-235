@@ -8,11 +8,15 @@ class Player extends PIXI.Sprite{
         this.y=y;
         this.playerSpeed = 100;
         this.playerFireRate = 0.7;
+        this.hasPiercing = false;
+        this.wheelFire = false;
     }
     ResetPlayerStats()
     {
         this.playerSpeed = 100;
         this.playerFireRate = 0.7;
+        this.hasPiercing = false;
+        this.wheelFire = false;
     }
 }
 
@@ -70,14 +74,78 @@ class Item extends PIXI.Sprite{
         this.y = y;
         this.isAlive = true;
         this.lifeSpan = 10.0;
+        // Fix use time for multiple items
     }
     useItem(player){
-        // Item would be used up and do a special effect
-        console.log("Used the Item!");
+        // Item would be used up and do a special effect        
+    }
+}
+
+// Add more items later
+
+class FireRateItem extends Item{
+    constructor(x=0,y=0)
+    {
+        super();
+        this.x = x;
+        this.y = y;
+        this.tint = 0x00FF00;
+    }
+    
+    useItem(player)
+    {
+        this.isAlive = false;
+        player.playerFireRate = 0.35;
+        return player;
+    }
+}
+
+class SpeedItem extends Item{
+    constructor(x=0,y=0)
+    {
+        super();
+        this.x = x;
+        this.y = y;
+    }
+
+    useItem(player)
+    {
         this.isAlive = false;
         player.playerSpeed = 150;
         return player;
     }
 }
 
-// Add more items later
+class WheelFire extends Item{
+    constructor(x=0,y=0)
+    {
+        super();
+        this.x = x;
+        this.y = y;
+        this.tint = 0x0000FF;
+    }
+
+    useItem(player)
+    {
+        this.isAlive = false;
+        player.wheelFire = true;
+        return player;
+    }
+
+}
+class Piercing extends Item{
+    constructor(x=0,y=0)
+    {
+        super();
+        this.x = x;
+        this.y = y;
+        this.tint = 0x00FFFF;
+    }
+
+    useItem(player)
+    {
+        this.isAlive = false;
+        player.hasPiercing = true;
+        return player;
+    }
+}

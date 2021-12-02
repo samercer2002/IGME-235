@@ -9,11 +9,13 @@ window.onload = function(){
 
 function keysDown(e){
     //console.log(e.keyCode);
+    e.preventDefault();
     keys[e.keyCode] = true;
 }
 
 function keysUp(e){
     //console.log(e.keyCode);
+    e.preventDefault();
     keys[e.keyCode] = false;
 }
 
@@ -53,10 +55,12 @@ let paused = true;
 let elapsedBulletTime = 0;
 let elapsedEnemyTime = 0;
 let elapsedItemUseTime = 0;
+let totalElapsedTime = 0;
 let items = [];
 let inventory;
 let inventoryItems = [];
 let startTimer = false;
+let wheelFireDirections = [];
 
 function setup(){
     score = 0;
@@ -77,6 +81,15 @@ function setup(){
 
     player = new Player(50,50);
     gameScene.addChild(player);
+
+    wheelFireDirections.push({x:-1,y:0});
+    wheelFireDirections.push({x:-0.7071,y:0});
+    wheelFireDirections.push({x:1,y:0});
+    wheelFireDirections.push({x:0.7071,y:0});
+    wheelFireDirections.push({x:0,y:-1});
+    wheelFireDirections.push({x:0,y:-0.7071});
+    wheelFireDirections.push({x:0,y:1});
+    wheelFireDirections.push({x:0,y:0.7071});
 
     setupInventory();
     
@@ -240,8 +253,48 @@ function createEnemies(numEnemies)
     for(let i=0; i<numEnemies;i++)
     {
         let e = new Enemy(0,0,player);
-        e.x = spawnPos.x;
-        e.y = spawnPos.y;
+        switch(i%3)
+        {
+            case 0:
+                if(spawnPos)
+                if(spawnPos.x != 0 || spawnPos.x != sceneWidth / 2)
+                {
+                    e.x = spawnPos.x - e.width - 1;
+                }
+                else{
+                    e.x = spawnPos.x;
+                }
+                if(spawnPos.y != 0 || spawnPos.y != sceneHeight / 2)
+                {
+                    e.y = spawnPos.y - e.width - 1;
+                }
+                else{
+                    e.y = spawnPos.y;
+                }
+                
+                break;
+            case 1:
+                e.x = spawnPos.x;
+                e.y = spawnPos.y;
+                break;
+            case 2: 
+            if(spawnPos.x != 0 || spawnPos.x != sceneWidth / 2)
+            {
+                e.x = spawnPos.x + e.width + 1;
+            }
+            else{
+                e.x = spawnPos.x;
+            }
+            if(spawnPos.y != 0 || spawnPos.y != sceneHeight / 2)
+            {
+                e.y = spawnPos.y + e.width + 1;
+            }
+            else{
+                e.y = spawnPos.y;
+            }
+                break;
+        }
+        
         enemies.push(e);
         gameScene.addChild(e);
     }
@@ -259,6 +312,7 @@ function gameLoop(){
     if (dt > 1/12) dt=1/12;
     elapsedBulletTime += dt;
     elapsedEnemyTime += dt;
+    totalElapsedTime += dt;
 
     if(items.length > 0)
     {
@@ -298,25 +352,35 @@ function gameLoop(){
     player.y = clamp(player.y,0 + player.height / 2, sceneHeight - player.height / 2);
 
     // Left Arrow
-    if(keys["37"])
+    if(player.wheelFire)
     {
-        fireBullet(-1,0);
+        if(keys["37"] || keys["38"] || keys["39"] || keys["40"])
+        {
+            fireBullet();
+        }
     }
-    // Up Arrow
-    if(keys["38"])
-    {
-        fireBullet(0,-1);
+    else{
+        if(keys["37"])
+        {
+            fireBullet(-1,0);
+        }
+        // Up Arrow
+        if(keys["38"])
+        {
+            fireBullet(0,-1);
+        }
+        // Right Arrow
+        if(keys["39"])
+        {
+            fireBullet(1,0);
+        }
+        // Down Arrow
+        if(keys["40"])
+        {
+            fireBullet(0,1);
+        }
     }
-    // Right Arrow
-    if(keys["39"])
-    {
-        fireBullet(1,0);
-    }
-    // Down Arrow
-    if(keys["40"])
-    {
-        fireBullet(0,1);
-    }
+    
 
     if(keys["32"] && inventoryItems.length > 0)
     {
@@ -358,31 +422,38 @@ function gameLoop(){
         {
             if(rectsIntersect(e,en) && e != en)
             {
-                if(e.x > en.x)
+                if(e.x > en.x && e.x-en.x > e.y-en.y)
                 {
-                    e.x = clamp(e.x,en.x+en.width);
+                    e.x = en.x+en.width;
                 }
-                else{
-                    en.x = clamp(en.x,e.x+e.width);
+                else if(en.x > e.x && en.x-e.x > en.y-e.y){
+                    en.x = e.x+e.width;
                 }
-                if(e.y > en.y)
+                else if(e.y > en.y && e.y-en.y > e.x-en.x)
                 {
-                    e.y = clamp(e.y,en.y+en.height);
+                    e.y = en.y+en.height;
                 }
-                else{
-                    en.y = clamp(en.y,e.y+e.height);
+                else if (en.y > e.y && en.y-e.y > en.x -e.x){
+                    en.y = e.y+e.height;
                 }
             }
         }
 
         for(let b of bullets)
         {
-            if(rectsIntersect(e,b) && e.isAlive && b.isAlive)
+            if(rectsIntersect(e,b) && e.isAlive && b.isAlive && !player.hasPiercing)
             {
                 gameScene.removeChild(e);
                 e.isAlive = false;
                 gameScene.removeChild(b);
                 b.isAlive = false;
+                increaseScoreBy(1);
+                tryForItem(e);
+            }
+            else if(rectsIntersect(e,b) && e.isAlive && b.isAlive && player.hasPiercing)
+            {
+                gameScene.removeChild(e);
+                e.isAlive = false;
                 increaseScoreBy(1);
                 tryForItem(e);
             }
@@ -396,7 +467,8 @@ function gameLoop(){
 
         if(e.isAlive && rectsIntersect(e, player))
         {
-            Reset()
+            Reset();
+            totalElapsedTime = 0;
             loadLevel();
             decreaseLifeBy(1);
         }
@@ -432,7 +504,7 @@ function gameLoop(){
 
     if(enemies.length == 0 || elapsedEnemyTime > 4.5)
     {
-        createEnemies(3);
+        createEnemies(Math.floor(3 + (totalElapsedTime * 1/10)));
         elapsedEnemyTime = 0;
     }
 
@@ -445,12 +517,25 @@ function gameLoop(){
 
 function fireBullet(x = 0, y = 0){
     if(paused) return;
-    if(elapsedBulletTime >= player.playerFireRate)
+    if(elapsedBulletTime >= player.playerFireRate && !player.wheelFire)
     {
         let b = new Bullet(0xFFFFFF,player.x,player.y,x, y);
         bullets.push(b);
         gameScene.addChild(b);
         elapsedBulletTime = 0;
+    }
+    else if(player.wheelFire)
+    {
+        if(elapsedBulletTime >= player.playerFireRate)
+        {
+            for(let i = 0; i < wheelFireDirections.length; i++)
+            {
+                let b = new Bullet(0xFFFFFF,player.x,player.y,wheelFireDirections[i].x, wheelFireDirections[i].y);
+                bullets.push(b);
+                gameScene.addChild(b);
+                elapsedBulletTime = 0;
+            }
+        }
     }
 }
 
@@ -522,8 +607,27 @@ function tryForItem(enemy)
     if(Math.random() < 0.3)
     {
         // To be changed once unique items are added
-        let item = new Item(enemy.x,enemy.y);
+        let item = pickItem(enemy.x,enemy.y);
         items.push(item);
         gameScene.addChild(item);
+    }
+}
+
+function pickItem(x,y)
+{
+    let value = Math.random();
+    if(value < 0.3)
+    {
+        return new FireRateItem(x,y);
+    }
+    else if(value >= 0.3 && value < 0.6){
+        return new SpeedItem(x,y);
+    }
+    else if(value >= 0.6 && value < 0.8)
+    {
+        return new WheelFire(x,y);
+    }
+    else{
+        return new Piercing(x,y);
     }
 }
